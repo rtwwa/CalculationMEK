@@ -132,6 +132,37 @@
       tr:last-child td {
         border-bottom: 0;
       }
+      .save-container {
+        display: flex;
+        gap: 32px;
+        width: 100%;
+        text-align: center;
+
+        justify-content: center;
+      }
+      .save-container button {
+        margin-top: 10px;
+        padding: 0;
+        border: none;
+        font: inherit;
+        color: inherit;
+        background-color: transparent;
+        cursor: pointer;
+      }
+      .save-container p {
+        margin: 0;
+      }
+      additional-settings {
+        display: block;
+        text-align: center;
+        margin: 10px auto 0 auto;
+        padding: 0;
+        border: none;
+        font: inherit;
+        color: inherit;
+        background-color: transparent;
+        cursor: pointer;
+      }
       .text-right {
         text-align: right;
       }
@@ -292,6 +323,52 @@
         </div>
         <button type="button" onclick="renderCalculations()">Рассчитать</button>
       </form>
+
+      <div class="save-container">
+        <div>
+          <button id="saveJsonButton">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-labelledby="saveIconTitle"
+              stroke="#000"
+              stroke-linecap="square"
+              fill="none"
+              color="#000"
+            >
+              <path
+                d="M17.293 3.293 21 7v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12.586a1 1 0 0 1 .707.293Z"
+              />
+              <path d="M7 13h10v8H7zM8 3h8v5H8z" />
+            </svg>
+            <p>Сохранить данные</p>
+          </button>
+        </div>
+
+        <input type="file" id="loadJsonInput" style="display: none" />
+        <button id="loadJsonButton">
+          <div>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path fill="#fff" d="M0 0h24v24H0z" />
+              <path
+                d="M5 12v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6M12 15V3m0 0L8 7m4-4 4 4"
+                stroke="#000"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <p>Загрузить данные</p>
+          </div>
+        </button>
+      </div>
     </div>
 
     <div class="container">
@@ -1174,24 +1251,29 @@
         document.querySelector("#backButton").style.display = "none";
       });
 
-      document
-        .querySelector("#toggleSettings")
-        .addEventListener("click", () => {
-          document.querySelector("#mekForm").style.transform =
-            "translateX(-100%)";
-          document.querySelector("#additionalForm").style.transform =
-            "translateX(0)";
-          document.querySelector("#additionalForm");
+      const toggleSettings = document.querySelector("#toggleSettings");
 
-          setTimeout(() => {
-            document.getElementById("mekForm").classList.add("hidden");
-            document
-              .getElementById("additionalForm")
-              .classList.remove("hidden");
-          }, 300);
-        });
+      toggleSettings.addEventListener("click", () => {
+        document.querySelector("#mekForm").style.transform =
+          "translateX(-100%)";
+        document.querySelector("#additionalForm").style.transform =
+          "translateX(0)";
+        setTimeout(() => {
+          document.getElementById("mekForm").classList.add("hidden");
+          document.getElementById("additionalForm").classList.remove("hidden");
+        }, 300);
+      });
 
-      document.querySelector("#backToMain").addEventListener("click", () => {
+      toggleSettings.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleSettings.click();
+        }
+      });
+
+      const backToMain = document.querySelector("#backToMain");
+
+      backToMain.addEventListener("click", () => {
         document.querySelector("#additionalForm").style.transform =
           "translateX(100%)";
         document.querySelector("#mekForm").style.transform = "translateX(0)";
@@ -1202,7 +1284,86 @@
         }, 300);
       });
 
+      backToMain.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleSettings.click();
+        }
+      });
+
       document.querySelector(".container").classList.add("hidden");
+
+      function saveDataAsJSON() {
+        const dataToSave = {
+          initialData,
+          constData,
+        };
+
+        const jsonString = JSON.stringify(dataToSave, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "data.json";
+        a.click();
+
+        URL.revokeObjectURL(url);
+        console.log("Данные сохранены как JSON!");
+      }
+
+      function loadDataFromJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const loadedData = JSON.parse(e.target.result);
+
+            if (loadedData.initialData) {
+              Object.assign(initialData, loadedData.initialData);
+            }
+            if (loadedData.constData) {
+              Object.assign(constData, loadedData.constData);
+            }
+
+            updateInputsFromData();
+            renderCalculations();
+            console.log("Данные загружены из JSON:", loadedData);
+          } catch (err) {
+            console.error("Ошибка при загрузке JSON:", err);
+          }
+        };
+
+        reader.readAsText(file);
+      }
+
+      function updateInputsFromData() {
+        document.querySelectorAll("#mekForm input").forEach((input) => {
+          const key = input.id;
+          if (initialData[key] !== undefined) {
+            input.value = initialData[key];
+          }
+        });
+
+        document.querySelectorAll("#additionalForm input").forEach((input) => {
+          const key = input.id.slice(0, -5);
+          if (constData[key] !== undefined) {
+            input.value = constData[key];
+          }
+        });
+      }
+
+      document
+        .getElementById("saveJsonButton")
+        .addEventListener("click", saveDataAsJSON);
+
+      const loadInput = document.getElementById("loadJsonInput");
+      document
+        .getElementById("loadJsonButton")
+        .addEventListener("click", () => loadInput.click());
+      loadInput.addEventListener("change", loadDataFromJSON);
     </script>
   </body>
 </html>
