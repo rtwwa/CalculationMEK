@@ -166,6 +166,10 @@
       .text-right {
         text-align: right;
       }
+      .text-center {
+        text-align: center;
+        padding: 5px 0 5px 15px;
+      }
       .font-medium {
         font-weight: 500;
       }
@@ -208,6 +212,23 @@
       }
       #additionalForm {
         transform: translateX(100%);
+      }
+      .frac {
+        display: inline-block;
+        position: relative;
+        vertical-align: middle;
+        letter-spacing: 0.001em;
+        text-align: center;
+      }
+      .frac > span {
+        display: block;
+        padding: 0.1em;
+      }
+      .frac span.bottom {
+        border-top: thin solid black;
+      }
+      .frac span.symbol {
+        display: none;
       }
     </style>
   </head>
@@ -293,7 +314,7 @@
           <input
             type="number"
             id="specificHeatOfSteamInput"
-            placeholder="443.2 кг/0.24 Гкал"
+            placeholder="443.2 кг/0.24 гкал"
           />
           <label for="operatorsSalaryInput">Зарплата оператора</label>
           <input
@@ -462,24 +483,36 @@
             <tr>
               <td class="font-medium">Удельный расход пара</td>
               <td id="specificSteamConsumption" class="text-right">0</td>
-              <td class="text-right">кг/кВт*ч</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>кг</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">кВт*ч</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Мощность ППМ</td>
               <td id="ppmCapacity" class="text-right">0</td>
-              <td class="text-right">кВт</td>
+              <td class="text-center">кВт</td>
             </tr>
             <tr>
               <td class="font-medium">Расход пара</td>
               <td id="steamConsumption" class="text-right">0</td>
-              <td class="text-right">кг/ч</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>кг</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">ч</span>
+                </span>
+              </td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <td colspan="">Выработка электрической энергии в месяц</td>
               <td id="totalEnergy" class="text-right">0</td>
-              <td class="text-right">кВт*ч</td>
+              <td class="text-center">кВт*ч</td>
             </tr>
           </tfoot>
         </table>
@@ -517,13 +550,19 @@
               <td class="font-medium">Удельная теплота пара</td>
               <td></td>
               <td id="specificHeatOfSteam" class="text-right">0</td>
-              <td class="text-right">кг/Гкал</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>кг</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">гкал</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Расходы теплоты для полученного пара</td>
               <td></td>
               <td id="heatConsumptionSteam" class="text-right">0</td>
-              <td class="text-right">Гкал</td>
+              <td class="text-center">гкал</td>
             </tr>
             <tr>
               <td class="font-medium">
@@ -531,7 +570,7 @@
               </td>
               <td></td>
               <td id="requiredHeatSteam" class="text-right">0</td>
-              <td class="text-right">Гкал</td>
+              <td class="text-center">гкал</td>
             </tr>
             <tr>
               <td class="font-medium">
@@ -539,37 +578,74 @@
               </td>
               <td>КПД котла примем 0,85</td>
               <td id="boilerHeatOutputKcal" class="text-right">0</td>
-              <td class="text-right">Ккал</td>
+              <td class="text-center">ккал</td>
             </tr>
             <tr>
               <td class="font-medium">Количество дров березы в час</td>
               <td></td>
               <td id="birchWoodConsumptionHour" class="text-right">0</td>
-              <td class="text-right">дц<sup>3</sup>/ч</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>дц<sup>3</sup></span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">гкал</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Количество дров березы в месяц</td>
-              <td>Береза r = ~ 2000 ккал/дц3 при влажности 20 %</td>
+              <td>
+                Береза r = ~ 2000
+                <span class="frac">
+                  <span>ккал</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">дц<sup>3</sup></span>
+                </span>
+              </td>
               <td id="birchWoodConsumptionDay" class="text-right">0</td>
-              <td class="text-right">дц<sup>3</sup>/сутки</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>дц<sup>3</sup></span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">сутки</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Количество дров березы в час</td>
               <td></td>
               <td id="birchWoodConsumptionCubicDay" class="text-right">0</td>
-              <td class="text-right">м<sup>3</sup>/сутки</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>м<sup>3</sup></span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">сутки</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Количество дров березы в месяц</td>
               <td></td>
               <td id="birchWoodConsumptionCubicMonth" class="text-right">0</td>
-              <td class="text-right">м<sup>3</sup>/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>м<sup>3</sup></span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Вес дров - береза в месяц</td>
               <td>Вес дров - 640 кг/м3</td>
               <td id="birchWoodWeightMonth" class="text-right">0</td>
-              <td class="text-right">кг/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>кг</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
           </tbody>
           <tfoot>
@@ -577,13 +653,25 @@
               <td class="font-medium">Стоимость дров в месяц</td>
               <td>11 кг березы стоят 270 руб => 24 руб/кг</td>
               <td id="woodCostMonth" class="text-right">0</td>
-              <td class="text-right">руб/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Стоимость дров в год</td>
               <td></td>
               <td id="woodCostYear" class="text-right">0</td>
-              <td class="text-right">руб/год</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">год</span>
+                </span>
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -621,38 +709,74 @@
               <td class="font-medium">Зарплата оператора</td>
               <td></td>
               <td id="operatorsSalary" class="text-right">0</td>
-              <td class="text-right">руб/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Суммарная зарплата операторов</td>
               <td id="numberOfEmployees">0</td>
               <td id="totalSalary" class="text-right">0</td>
-              <td class="text-right">руб/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Объем фонды оплаты труда</td>
               <td id="payrollPercent"></td>
               <td id="payroll" class="text-right">0</td>
-              <td class="text-right">руб/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">ФОТ и премия</td>
               <td id="bonusPercent"></td>
               <td id="payrollWithBonus" class="text-right">0</td>
-              <td class="text-right">руб/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Налоговые отчисления</td>
               <td id="taxPercent"></td>
               <td id="taxes" class="text-right">0</td>
-              <td class="text-right">руб/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <td colspan="2">Суммарные затраты</td>
               <td id="totalEmployeeCost" class="text-right">0</td>
-              <td class="text-right">руб/месяц</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -682,14 +806,14 @@
               <td class="font-medium">Текущие затраты в месяц</td>
               <td>ФОТ, стоимость топлива, запчасти</td>
               <td id="monthlyCosts" class="text-right">0</td>
-              <td class="text-right">руб</td>
+              <td class="text-center">руб</td>
             </tr>
             <tr>
               <td class="font-medium" colspan="2">
                 Себестоимость электроэнергии за месяц
               </td>
               <td id="сostOfElectricity" class="text-right">0</td>
-              <td class="text-right">руб/кВт*ч</td>
+              <td class="text-center">руб/кВт*ч</td>
             </tr>
           </tbody>
         </table>
@@ -725,34 +849,52 @@
             <tr>
               <td class="font-medium">По себестоимости ППМ</td>
               <td id="atCostOfPpm" class="text-right">0</td>
-              <td class="text-right">руб</td>
+              <td class="text-center">руб</td>
             </tr>
             <tr>
               <td class="font-medium">Тариф региона</td>
               <td id="atRegionTariffConst" class="text-right">0</td>
-              <td class="text-right">руб/кВт*ч</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">кВт*ч</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Стоимость энергии по тарифу региона</td>
               <td id="atRegionTariff" class="text-right">0</td>
-              <td class="text-right">руб</td>
+              <td class="text-center">руб</td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <td class="font-medium">Процент разницы</td>
               <td id="profitFromDifferencePercent" class="text-right">0</td>
-              <td class="text-right">%</td>
+              <td class="text-center">%</td>
             </tr>
             <tr>
               <td class="font-medium">Прибыль от разности за месяц</td>
               <td id="profitFromDifferenceMontly" class="text-right">0</td>
-              <td class="text-right">руб/мес</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">месяц</span>
+                </span>
+              </td>
             </tr>
             <tr>
               <td class="font-medium">Прибыль от разности за год</td>
               <td id="profitFromDifferenceYearly" class="text-right">0</td>
-              <td class="text-right">руб/год</td>
+              <td class="text-center">
+                <span class="frac">
+                  <span>руб</span>
+                  <span class="symbol">/</span>
+                  <span class="bottom">год</span>
+                </span>
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -788,24 +930,24 @@
             <tr>
               <td class="font-medium">ФОТ</td>
               <td id="FOT" class="text-right">0</td>
-              <td class="text-right">%</td>
+              <td class="text-center">%</td>
             </tr>
             <tr>
               <td class="font-medium">Стоимость топлива</td>
               <td id="fuelCost" class="text-right">0</td>
-              <td class="text-right">%</td>
+              <td class="text-center">%</td>
             </tr>
             <tr>
               <td class="font-medium">Текущие затраты</td>
               <td id="currentsCosts" class="text-right">0</td>
-              <td class="text-right">%</td>
+              <td class="text-center">%</td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <td class="font-medium">Сумма составляющих</td>
               <td id="sumOfComponents" class="text-right">0</td>
-              <td class="text-right">%</td>
+              <td class="text-center">%</td>
             </tr>
           </tfoot>
         </table>
@@ -1044,7 +1186,7 @@
         ).innerText = `${data.totalSalary.toLocaleString()}`;
         document.getElementById(
           "payrollPercent"
-        ).innerText = `От общей зарплаты операторов + ${
+        ).innerText = `От общей зарплаты операторов - ${
           constData.payrollPercent * 100
         }%`;
         document.getElementById(
@@ -1052,7 +1194,7 @@
         ).innerText = `${data.payroll.toLocaleString()}`;
         document.getElementById(
           "bonusPercent"
-        ).innerText = `От фонда оплаты труда + ${
+        ).innerText = `От фонда оплаты труда - ${
           constData.bonusPercent * 100
         }%`;
         document.getElementById(
