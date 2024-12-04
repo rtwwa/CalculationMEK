@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Расчет стоимости МЭК на базе поршневой паровой машины</title>
+    <noscript
+      >Ваш браузер не поддерживает JavaScript. Сайт не может корректно
+      работать.</noscript
+    >
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="author" content="БИТИ НИЯУ МИФИ Иванова Алена Андреевна" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --background: hsl(0, 0%, 100%);
+        --foreground: hsl(20, 14.3%, 4.1%);
+        --primary: hsl(24, 9.8%, 10%);
+        --primary-foreground: hsl(60, 9.1%, 97.8%);
+        --muted: hsl(60, 4.8%, 95.9%);
+        --muted-foreground: hsl(25, 5.3%, 44.7%);
+        --border: hsl(20, 5.9%, 90%);
+        --input: hsl(20, 5.9%, 90%);
+        --radius: 0.5rem;
+      }
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: var(--background);
+        color: var(--foreground);
+        margin: 20px;
+        padding: 8px;
+        margin: auto;
+        overflow-x: hidden;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        max-width: 600px;
+        margin: auto;
+        text-align: left;
+      }
+      label {
+        font-weight: 500;
+        align-self: center;
+      }
+      input {
+        padding: 8px;
+        height: 20px;
+        border-radius: 0.375rem;
+        font-size: 16px;
+        background-color: var(--input);
+        color: var(--foreground);
+        border: 1px solid var(--border);
+      }
+      form {
+        width: 100%;
+        transition: transform 0.5s ease;
+        text-align: center;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: var(--primary);
+        color: var(--primary-foreground);
+        border: none;
+        border-radius: 5px;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+      .table-container {
+        max-width: 1200px;
+        overflow-x: auto;
+        margin: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        caption-side: bottom;
+        font-size: 0.875rem;
+        font-size: 16px;
+        margin: 5px 0px 5px 0px;
+      }
+      caption {
+        font-weight: bold;
+        padding: 5px 0px 5px 0px;
+        caption-side: top;
+        cursor: pointer;
+      }
+      caption:hover {
+        background-color: rgba(240, 240, 240, 0.3);
+      }
+      caption svg {
+        text-align: right;
+      }
+      th,
+      td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        font-weight: 500;
+        color: var(--muted-foreground);
+        position: sticky;
+        top: 0;
+      }
+      td {
+        vertical-align: middle;
+      }
+      tfoot tr {
+        border-top: 1px solid var(--border);
+        font-weight: 500;
+      }
+      tr:hover {
+        background-color: rgba(240, 240, 240, 0.5);
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .font-medium {
+        font-weight: 500;
+      }
+      .text-right,
+      .unit {
+        width: 125px;
+      }
+      .unit {
+        text-align: right;
+      }
+      .paybackStyles {
+        text-align: center;
+        font-size: 24px;
+        margin: 10px 0px 10px 0px;
+        font-weight: 700;
+      }
+      .hidden {
+        display: none;
+      }
+      .back-button {
+        position: fixed;
+        left: 20px;
+        bottom: 20px;
+        padding: 10px 20px;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: none;
+        z-index: 1000;
+      }
+      .additional-settings {
+        color: var(--muted-foreground);
+        cursor: pointer;
+        margin-top: 20px;
+      }
+      #mekForm {
+        transform: translateX(0);
+      }
+      #additionalForm {
+        transform: translateX(100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="formContainer">
+      <form id="mekForm">
+        <div class="grid">
+          <label for="steamEngine">Паровая поршневая машина</label>
+          <input type="number" id="steamEngine" placeholder="0 рублей" />
+
+          <label for="steamBoiler">Паровой котел</label>
+          <input type="number" id="steamBoiler" placeholder="0 рублей" />
+
+          <label for="generator">Генератор</label>
+          <input type="number" id="generator" placeholder="0 рублей" />
+
+          <label for="fuelSupplySystem">Система подачи топлива</label>
+          <input type="number" id="fuelSupplySystem" placeholder="0 рублей" />
+
+          <label for="radiator">Конденсатор (Радиатор)</label>
+          <input type="number" id="radiator" placeholder="0 рублей" />
+
+          <label for="radiatorFan">Вентилятор радиатора</label>
+          <input type="number" id="radiatorFan" placeholder="0 рублей" />
+
+          <label for="pump">Конденсаторный насос</label>
+          <input type="number" id="pump" placeholder="0 рублей" />
+
+          <label for="controlSystem">Система управления и контроля</label>
+          <input type="number" id="controlSystem" placeholder="0 рублей" />
+
+          <label for="pipes">Комплект труб и арматуры</label>
+          <input type="number" id="pipes" placeholder="0 рублей" />
+
+          <label for="cables">Комплект кабельной продукции</label>
+          <input type="number" id="cables" placeholder="0 рублей" />
+
+          <label for="condensateTank">Емкость для конденсата</label>
+          <input type="number" id="condensateTank" placeholder="0 рублей" />
+        </div>
+        <div class="additional-settings" id="toggleSettings">
+          Настроить дополнительные переменные
+        </div>
+        <button type="button" onclick="renderCalculations()">Рассчитать</button>
+      </form>
+
+      <form id="additionalForm" class="hidden">
+        <div class="grid">
+          <label for="startsWorksCoefInput">Пуско – наладочные работы</label>
+          <input type="number" id="startsWorksCoefInput" placeholder="15%" />
+
+          <label for="maintenanceOfPpmCoefInput"
+            >Техническое обслуживание ППМ</label
+          >
+          <input
+            type="number"
+            id="maintenanceOfPpmCoefInput"
+            placeholder="10%"
+          />
+
+          <label for="lubricantsAndSparesCoefInput"
+            >Смазочные материалы и запчасти</label
+          >
+          <input
+            type="number"
+            id="lubricantsAndSparesCoefInput"
+            placeholder="10%"
+          />
+
+          <label for="specificSteamConsumptionInput"
+            >Удельный расход пара</label
+          >
+          <input
+            type="number"
+            id="specificSteamConsumptionInput"
+            placeholder="12.6 кг/кВт*ч"
+          />
+          <label for="ppmCapacityInput">Мощность ППМ</label>
+          <input type="number" id="ppmCapacityInput" placeholder="150 кВт" />
+          <label for="specificHeatOfSteamInput"
+            >Удельная теплота полученного пара</label
+          >
+          <input
+            type="number"
+            id="specificHeatOfSteamInput"
+            placeholder="443.2 кг/0.24 Гкал"
+          />
+          <label for="operatorsSalaryInput">Зарплата оператора</label>
+          <input
+            type="number"
+            id="operatorsSalaryInput"
+            placeholder="40 000 рублей"
+          />
+          <label for="numberOfEmployeesInput">Количество работников</label>
+          <input type="number" id="numberOfEmployeesInput" placeholder="4" />
+          <label for="payrollPercentInput"
+            >Коэффициент фонда оплаты труда</label
+          >
+          <input type="number" id="payrollPercentInput" placeholder="0.4" />
+          <label for="bonusPercentInput">Коэффициент ФОТ и премий</label>
+          <input type="number" id="bonusPercentInput" placeholder="0.1" />
+          <label for="taxPercentInput">Коэффициент налоговых отчислений</label>
+          <input type="number" id="taxPercentInput" placeholder="0.35" />
+          <label for="atRegionTariffInputInput">Тариф электроэнергии</label>
+          <input
+            type="number"
+            id="atRegionTariffInput"
+            placeholder="4.38 руб/кВт*ч"
+          />
+        </div>
+        <div class="additional-settings" id="backToMain">
+          Назад к основной форме
+        </div>
+        <button type="button" onclick="renderCalculations()">Рассчитать</button>
+      </form>
+    </div>
+
+    <div class="container">
+      <div class="table-container">
+        <table>
+          <caption>
+            Расчет стоимости материалов
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-arrow-down"
+            >
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </caption>
+          <thead>
+            <tr>
+              <th>Наименование изделия</th>
+              <th>Примечание</th>
+              <th class="text-right">Стоимость</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-medium">МЭК комплект</td>
+              <td></td>
+              <td id="mekTotal" class="text-right">0 ₽</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Пуско – наладочные работы</td>
+              <td id="startsWorksCoefTD">15% удельной стоимость работ</td>
+              <td id="startsWorks" class="text-right">0 ₽</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Техническое обслуживание ППМ</td>
+              <td id="maintenanceOfPpmCoefTD">10% удельной стоимость работ</td>
+              <td id="maintenanceOfPpm" class="text-right">0 ₽</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Смазочные материалы и запчасти</td>
+              <td id="lubricantsAndSparesCoefTD">
+                10% удельной стоимость работ
+              </td>
+              <td id="lubricantsAndSpares" class="text-right">0 ₽</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">Всего</td>
+              <td id="totalEquipmentCost" class="text-right">0 ₽</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-container">
+        <table>
+          <caption>
+            Расчет потребности в топливе и производительности
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-arrow-down"
+            >
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </caption>
+          <thead>
+            <tr>
+              <th>Наименование</th>
+              <th class="text-right">Величина</th>
+              <th class="text-right">Ед. измерения</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-medium">Удельный расход пара</td>
+              <td id="specificSteamConsumption" class="text-right">0</td>
+              <td class="text-right">кг/кВт*ч</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Мощность ППМ</td>
+              <td id="ppmCapacity" class="text-right">0</td>
+              <td class="text-right">кВт</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Расход пара</td>
+              <td id="steamConsumption" class="text-right">0</td>
+              <td class="text-right">кг/ч</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="">Выработка электрической энергии в месяц</td>
+              <td id="totalEnergy" class="text-right">0</td>
+              <td class="text-right">кВт*ч</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-container">
+        <table>
+          <caption>
+            Расчет необходимого количества и стоимости топлива
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-arrow-down"
+            >
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </caption>
+          <thead>
+            <tr>
+              <th>Расход топлива</th>
+              <th>Примечание</th>
+              <th class="text-right">Величина</th>
+              <th class="text-right">Ед. измерения</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-medium">Удельная теплота пара</td>
+              <td></td>
+              <td id="specificHeatOfSteam" class="text-right">0</td>
+              <td class="text-right">кг/Гкал</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Расходы теплоты для полученного пара</td>
+              <td></td>
+              <td id="heatConsumptionSteam" class="text-right">0</td>
+              <td class="text-right">Гкал</td>
+            </tr>
+            <tr>
+              <td class="font-medium">
+                Необходимо теполоты для получения пара
+              </td>
+              <td></td>
+              <td id="requiredHeatSteam" class="text-right">0</td>
+              <td class="text-right">Гкал</td>
+            </tr>
+            <tr>
+              <td class="font-medium">
+                Тепловая производительность паров котла
+              </td>
+              <td>КПД котла примем 0,85</td>
+              <td id="boilerHeatOutputKcal" class="text-right">0</td>
+              <td class="text-right">Ккал</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Количество дров березы в час</td>
+              <td></td>
+              <td id="birchWoodConsumptionHour" class="text-right">0</td>
+              <td class="text-right">дц<sup>3</sup>/ч</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Количество дров березы в месяц</td>
+              <td>Береза r = ~ 2000 ккал/дц3 при влажности 20 %</td>
+              <td id="birchWoodConsumptionDay" class="text-right">0</td>
+              <td class="text-right">дц<sup>3</sup>/сутки</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Количество дров березы в час</td>
+              <td></td>
+              <td id="birchWoodConsumptionCubicDay" class="text-right">0</td>
+              <td class="text-right">м<sup>3</sup>/сутки</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Количество дров березы в месяц</td>
+              <td></td>
+              <td id="birchWoodConsumptionCubicMonth" class="text-right">0</td>
+              <td class="text-right">м<sup>3</sup>/месяц</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Вес дров - береза в месяц</td>
+              <td>Вес дров - 640 кг/м3</td>
+              <td id="birchWoodWeightMonth" class="text-right">0</td>
+              <td class="text-right">кг/месяц</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="font-medium">Стоимость дров в месяц</td>
+              <td>11 кг березы стоят 270 руб => 24 руб/кг</td>
+              <td id="woodCostMonth" class="text-right">0</td>
+              <td class="text-right">руб/месяц</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Стоимость дров в год</td>
+              <td></td>
+              <td id="woodCostYear" class="text-right">0</td>
+              <td class="text-right">руб/год</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-container">
+        <table>
+          <caption>
+            Расчет зарплатного фонда
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-arrow-down"
+            >
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </caption>
+          <thead>
+            <tr>
+              <th>Наименование</th>
+              <th>Примечание</th>
+              <th class="text-right">Величина</th>
+              <th class="text-right">Ед. измерения</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-medium">Зарплата оператора</td>
+              <td></td>
+              <td id="operatorsSalary" class="text-right">0</td>
+              <td class="text-right">руб/месяц</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Суммарная зарплата операторов</td>
+              <td id="numberOfEmployees">0</td>
+              <td id="totalSalary" class="text-right">0</td>
+              <td class="text-right">руб/месяц</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Объем фонды оплаты труда</td>
+              <td id="payrollPercent"></td>
+              <td id="payroll" class="text-right">0</td>
+              <td class="text-right">руб/месяц</td>
+            </tr>
+            <tr>
+              <td class="font-medium">ФОТ и премия</td>
+              <td id="bonusPercent"></td>
+              <td id="payrollWithBonus" class="text-right">0</td>
+              <td class="text-right">руб/месяц</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Налоговые отчисления</td>
+              <td id="taxPercent"></td>
+              <td id="taxes" class="text-right">0</td>
+              <td class="text-right">руб/месяц</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">Суммарные затраты</td>
+              <td id="totalEmployeeCost" class="text-right">0</td>
+              <td class="text-right">руб/месяц</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-container">
+        <table>
+          <caption>
+            Текущие затраты в месяц и себестоимость полученной электроэнергии
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-arrow-down"
+            >
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </caption>
+          <tbody>
+            <tr>
+              <td class="font-medium">Текущие затраты в месяц</td>
+              <td>ФОТ, стоимость топлива, запчасти</td>
+              <td id="monthlyCosts" class="text-right">0</td>
+              <td class="text-right">руб</td>
+            </tr>
+            <tr>
+              <td class="font-medium" colspan="2">
+                Себестоимость электроэнергии за месяц
+              </td>
+              <td id="сostOfElectricity" class="text-right">0</td>
+              <td class="text-right">руб/кВт*ч</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-container">
+        <table>
+          <caption>
+            Прибыль от разности в тарифах электроэнергии
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-arrow-down"
+            >
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </caption>
+          <thead>
+            <tr>
+              <th>Наименование</th>
+              <th class="text-right">Величина</th>
+              <th class="text-right">Ед. измерения</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-medium">По себестоимости ППМ</td>
+              <td id="atCostOfPpm" class="text-right">0</td>
+              <td class="text-right">руб</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Тариф региона</td>
+              <td id="atRegionTariffConst" class="text-right">0</td>
+              <td class="text-right">руб/кВт*ч</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Стоимость энергии по тарифу региона</td>
+              <td id="atRegionTariff" class="text-right">0</td>
+              <td class="text-right">руб</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="font-medium">Процент разницы</td>
+              <td id="profitFromDifferencePercent" class="text-right">0</td>
+              <td class="text-right">%</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Прибыль от разности за месяц</td>
+              <td id="profitFromDifferenceMontly" class="text-right">0</td>
+              <td class="text-right">руб/мес</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Прибыль от разности за год</td>
+              <td id="profitFromDifferenceYearly" class="text-right">0</td>
+              <td class="text-right">руб/год</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="table-container">
+        <table>
+          <caption>
+            Относительные затраты к общим
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-arrow-down"
+            >
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </caption>
+          <thead>
+            <tr>
+              <th>Наименование</th>
+              <th class="text-right">Величина</th>
+              <th class="text-right">Ед. измерения</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-medium">ФОТ</td>
+              <td id="FOT" class="text-right">0</td>
+              <td class="text-right">%</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Стоимость топлива</td>
+              <td id="fuelCost" class="text-right">0</td>
+              <td class="text-right">%</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Текущие затраты</td>
+              <td id="currentsCosts" class="text-right">0</td>
+              <td class="text-right">%</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="font-medium">Сумма составляющих</td>
+              <td id="sumOfComponents" class="text-right">0</td>
+              <td class="text-right">%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div id="paybackPeriod" class="paybackStyles"></div>
+    </div>
+
+    <button class="back-button" id="backButton">Назад</button>
+
+    <script>
+      const initialData = {
+        steamEngine: 0,
+        steamBoiler: 0,
+        generator: 0,
+        fuelSupplySystem: 0,
+        radiator: 0,
+        radiatorFan: 0,
+        pump: 0,
+        controlSystem: 0,
+        pipes: 0,
+        cables: 0,
+        condensateTank: 0,
+      };
+
+      const constData = {
+        startsWorksCoef: 15,
+        maintenanceOfPpmCoef: 10,
+        lubricantsAndSparesCoef: 10,
+        specificSteamConsumption: 12.6,
+        ppmCapacity: 150,
+        specificHeatOfSteam: 443.2,
+        operatorsSalary: 40000,
+        numberOfEmployees: 4,
+        payrollPercent: 0.4,
+        bonusPercent: 0.1,
+        taxPercent: 0.35,
+        atRegionTariff: 4.38,
+      };
+
+      const defaultConstData = {
+        startsWorksCoef: 15,
+        maintenanceOfPpmCoef: 10,
+        lubricantsAndSparesCoef: 10,
+        specificSteamConsumption: 12.6,
+        ppmCapacity: 150,
+        specificHeatOfSteam: 443.2,
+        operatorsSalary: 40000,
+        numberOfEmployees: 4,
+        payrollPercent: 0.4,
+        bonusPercent: 0.1,
+        taxPercent: 0.35,
+        atRegionTariff: 4.38,
+      };
+
+      const data = {
+        mekSum: 0,
+        startsWorks: 0,
+        maintenanceOfPpm: 0,
+        lubricantsAndSpares: 0,
+        totalEquipmentCost: 0,
+        steamConsumption: 0,
+        totalEnergy: 0,
+        heatConsumptionSteam: 0,
+        requiredHeatSteam: 0,
+        boilerHeatOutputKcal: 0,
+        birchWoodConsumptionHour: 0,
+        birchWoodConsumptionDay: 0,
+        birchWoodConsumptionCubicDay: 0,
+        birchWoodConsumptionCubicMonth: 0,
+        birchWoodWeightMonth: 0,
+        woodCostMonth: 0,
+        woodCostYear: 0,
+        totalSalary: 0,
+        payroll: 0,
+        payrollWithBonus: 0,
+        taxes: 0,
+        totalEmployeeCost: 0,
+        monthlyCosts: 0,
+        сostOfElectricity: 0,
+        atCostOfPpm: 0,
+        atRegionTariff: 0,
+        profitFromDifferencePercent: 0,
+        profitFromDifferenceMontly: 0,
+        profitFromDifferenceYearly: 0,
+        FOT: 0,
+        fuelCost: 0,
+        currentsCosts: 0,
+        sumOfComponents: 0,
+        paybackPeriod: 0,
+      };
+
+      function calculate() {
+        let mekSum = 0;
+
+        for (let key in initialData) {
+          mekSum += initialData[key];
+          console.log(initialData[key] + " " + key);
+        }
+
+        data.mekSum = mekSum;
+        data.startsWorks = mekSum * constData.startsWorksCoef * 0.01;
+        data.maintenanceOfPpm = mekSum * constData.maintenanceOfPpmCoef * 0.01;
+        data.lubricantsAndSpares =
+          mekSum * constData.lubricantsAndSparesCoef * 0.01;
+        data.totalEquipmentCost =
+          mekSum +
+          data.startsWorks +
+          data.maintenanceOfPpm +
+          data.lubricantsAndSpares;
+
+        data.steamConsumption =
+          constData.specificSteamConsumption * constData.ppmCapacity;
+        data.totalEnergy = constData.ppmCapacity * 720;
+
+        data.heatConsumptionSteam =
+          data.steamConsumption / constData.specificHeatOfSteam;
+        data.requiredHeatSteam = 0.24 * data.heatConsumptionSteam;
+        data.boilerHeatOutputKcal = (data.requiredHeatSteam / 0.85) * 1000;
+        data.birchWoodConsumptionHour = data.boilerHeatOutputKcal / 2000;
+        data.birchWoodConsumptionDay = data.birchWoodConsumptionHour * 24;
+        data.birchWoodConsumptionCubicDay = data.birchWoodConsumptionDay / 1000;
+        data.birchWoodConsumptionCubicMonth =
+          data.birchWoodConsumptionCubicDay * 30;
+        data.birchWoodWeightMonth = data.birchWoodConsumptionCubicMonth * 640;
+        data.woodCostMonth = data.birchWoodWeightMonth * 24;
+        data.woodCostYear = data.woodCostMonth * 12;
+
+        data.totalSalary =
+          constData.numberOfEmployees * constData.operatorsSalary;
+        data.payroll = data.totalSalary * (1 + constData.payrollPercent);
+        data.payrollWithBonus = data.payroll * (1 + constData.bonusPercent);
+        data.taxes = data.payrollWithBonus * constData.taxPercent;
+        data.totalEmployeeCost = data.payrollWithBonus + data.taxes;
+
+        data.monthlyCosts =
+          data.payrollWithBonus + data.woodCostMonth + data.lubricantsAndSpares;
+
+        data.сostOfElectricity = data.monthlyCosts / data.totalEnergy;
+
+        data.atCostOfPpm = data.сostOfElectricity * data.totalEnergy;
+        data.atRegionTariff = data.totalEnergy * constData.atRegionTariff;
+        data.profitFromDifferenceMontly =
+          data.atRegionTariff - data.atCostOfPpm;
+        data.profitFromDifferencePercent =
+          data.profitFromDifferenceMontly / data.atRegionTariff;
+        data.profitFromDifferenceYearly = data.profitFromDifferenceMontly * 12;
+
+        data.FOT = data.payrollWithBonus / data.monthlyCosts;
+        data.fuelCost = data.woodCostMonth / data.monthlyCosts;
+        data.currentsCosts = data.lubricantsAndSpares / data.monthlyCosts;
+        data.sumOfComponents =
+          (data.FOT + data.fuelCost + data.currentsCosts) * 100;
+        data.paybackPeriod =
+          data.totalEquipmentCost / data.profitFromDifferenceYearly;
+      }
+
+      function renderCalculations() {
+        showForms();
+        calculate();
+
+        document.getElementById(
+          "mekTotal"
+        ).innerText = `${data.mekSum.toLocaleString()} ₽`;
+        document.getElementById(
+          "startsWorks"
+        ).innerText = `${data.startsWorks.toLocaleString()} ₽`;
+        document.getElementById(
+          "startsWorksCoefTD"
+        ).innerText = `${constData.startsWorksCoef.toLocaleString()}% удельной стоимости работ`;
+        document.getElementById(
+          "maintenanceOfPpmCoefTD"
+        ).innerText = `${constData.maintenanceOfPpmCoef.toLocaleString()}% удельной стоимости работ`;
+        document.getElementById(
+          "lubricantsAndSparesCoefTD"
+        ).innerText = `${constData.lubricantsAndSparesCoef.toLocaleString()}% удельной стоимости работ`;
+        document.getElementById(
+          "maintenanceOfPpm"
+        ).innerText = `${data.maintenanceOfPpm.toLocaleString()} ₽`;
+        document.getElementById(
+          "lubricantsAndSpares"
+        ).innerText = `${data.lubricantsAndSpares.toLocaleString()} ₽`;
+        document.getElementById(
+          "totalEquipmentCost"
+        ).innerText = `${data.totalEquipmentCost.toLocaleString()} ₽`;
+
+        document.getElementById("specificSteamConsumption").innerText =
+          parseFloat(constData.specificSteamConsumption.toFixed(5));
+        document.getElementById("ppmCapacity").innerText = parseFloat(
+          constData.ppmCapacity.toFixed(5)
+        );
+        document.getElementById("steamConsumption").innerText = parseFloat(
+          data.steamConsumption.toFixed(5)
+        );
+        document.getElementById("totalEnergy").innerText = parseFloat(
+          data.totalEnergy.toFixed(5)
+        );
+
+        document.getElementById("specificHeatOfSteam").innerText = parseFloat(
+          constData.specificHeatOfSteam.toFixed(5)
+        );
+        document.getElementById("heatConsumptionSteam").innerText = parseFloat(
+          data.heatConsumptionSteam.toFixed(5)
+        );
+        document.getElementById("requiredHeatSteam").innerText = parseFloat(
+          data.requiredHeatSteam.toFixed(5)
+        );
+        document.getElementById("boilerHeatOutputKcal").innerText = parseFloat(
+          data.boilerHeatOutputKcal.toFixed(5)
+        );
+        document.getElementById("birchWoodConsumptionHour").innerText =
+          parseFloat(data.birchWoodConsumptionHour.toFixed(5));
+        document.getElementById("birchWoodConsumptionDay").innerText =
+          parseFloat(data.birchWoodConsumptionDay.toFixed(5));
+        document.getElementById("birchWoodConsumptionCubicDay").innerText =
+          parseFloat(data.birchWoodConsumptionCubicDay.toFixed(5));
+        document.getElementById("birchWoodConsumptionCubicMonth").innerText =
+          parseFloat(data.birchWoodConsumptionCubicMonth.toFixed(5));
+        document.getElementById("birchWoodWeightMonth").innerText = parseFloat(
+          data.birchWoodWeightMonth.toFixed(5)
+        );
+        document.getElementById("woodCostMonth").innerText = parseFloat(
+          data.woodCostMonth.toFixed(0)
+        );
+        document.getElementById("woodCostYear").innerText = parseFloat(
+          data.woodCostYear.toFixed(0)
+        );
+
+        document.getElementById(
+          "operatorsSalary"
+        ).innerText = `${constData.operatorsSalary.toLocaleString()}`;
+        document.getElementById(
+          "numberOfEmployees"
+        ).innerText = `Количество работников - ${constData.numberOfEmployees}`;
+        document.getElementById(
+          "totalSalary"
+        ).innerText = `${data.totalSalary.toLocaleString()}`;
+        document.getElementById(
+          "payrollPercent"
+        ).innerText = `От общей зарплаты операторов + ${
+          constData.payrollPercent * 100
+        }%`;
+        document.getElementById(
+          "payroll"
+        ).innerText = `${data.payroll.toLocaleString()}`;
+        document.getElementById(
+          "bonusPercent"
+        ).innerText = `От фонда оплаты труда + ${
+          constData.bonusPercent * 100
+        }%`;
+        document.getElementById(
+          "payrollWithBonus"
+        ).innerText = `${data.payrollWithBonus.toLocaleString()}`;
+        document.getElementById(
+          "taxPercent"
+        ).innerText = `Налоговые отчисления - ${constData.taxPercent * 100}%`;
+        document.getElementById(
+          "taxes"
+        ).innerText = `${data.taxes.toLocaleString()}`;
+        document.getElementById(
+          "totalEmployeeCost"
+        ).innerText = `${data.totalEmployeeCost.toLocaleString()}`;
+
+        document.getElementById(
+          "monthlyCosts"
+        ).innerText = `${data.monthlyCosts.toLocaleString()}`;
+        document.getElementById(
+          "сostOfElectricity"
+        ).innerText = `${data.сostOfElectricity.toLocaleString()}`;
+
+        document.getElementById(
+          "monthlyCosts"
+        ).innerText = `${data.monthlyCosts.toLocaleString()}`;
+        document.getElementById(
+          "сostOfElectricity"
+        ).innerText = `${data.сostOfElectricity.toLocaleString()}`;
+
+        document.getElementById(
+          "atCostOfPpm"
+        ).innerText = `${data.atCostOfPpm.toLocaleString()}`;
+        document.getElementById(
+          "atRegionTariffConst"
+        ).innerText = `${constData.atRegionTariff.toLocaleString()}`;
+        document.getElementById(
+          "atRegionTariff"
+        ).innerText = `${data.atRegionTariff.toLocaleString()}`;
+        document.getElementById("profitFromDifferencePercent").innerText = `${(
+          data.profitFromDifferencePercent * 100
+        ).toLocaleString()}`;
+        document.getElementById(
+          "profitFromDifferenceMontly"
+        ).innerText = `${data.profitFromDifferenceMontly.toLocaleString()}`;
+        document.getElementById(
+          "profitFromDifferenceYearly"
+        ).innerText = `${data.profitFromDifferenceYearly.toLocaleString()}`;
+
+        document.getElementById("FOT").innerText = `${(data.FOT * 100).toFixed(
+          2
+        )}`;
+        document.getElementById("fuelCost").innerText = `${(
+          data.fuelCost * 100
+        ).toFixed(2)}`;
+        document.getElementById("currentsCosts").innerText = `${(
+          data.currentsCosts * 100
+        ).toFixed(2)}`;
+        document.getElementById(
+          "sumOfComponents"
+        ).innerText = `${data.sumOfComponents.toFixed(0)}`;
+
+        document.getElementById(
+          "paybackPeriod"
+        ).innerText = `Время окупаемости ${data.paybackPeriod.toFixed(2)} лет`;
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const tableContainers = document.querySelectorAll(".table-container");
+
+        tableContainers.forEach((container) => {
+          const caption = container.querySelector("caption");
+          const table = container.querySelector("table");
+          const thead = container.querySelector("thead") || null;
+          const tbody = container.querySelector("tbody") || null;
+          const tfoot = container.querySelector("tfoot") || null;
+
+          table.style.display = "table";
+
+          caption.addEventListener("click", () => {
+            const icon = container.querySelector("svg");
+            if (table.className == "" || table.className == "visible") {
+              table.className = "hidden";
+              icon.outerHTML = `
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-arrow-up"
+                >
+                  <path d="m5 12 7-7 7 7" />
+                  <path d="M12 19V5" />
+                </svg>
+              `;
+              if (thead) thead.style.display = "none";
+              if (tbody) tbody.style.display = "none";
+              if (tfoot) tfoot.style.display = "none";
+            } else {
+              table.className = "visible";
+              icon.outerHTML = `
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-arrow-down"
+                >
+                  <path d="M12 5v14" />
+                  <path d="m19 12-7 7-7-7" />
+                </svg>
+              `;
+              if (thead) thead.style.display = "table-header-group";
+              if (tbody) tbody.style.display = "table-row-group";
+              if (tfoot) tfoot.style.display = "table-footer-group";
+            }
+          });
+        });
+      });
+
+      function updateData(array, id, value) {
+        array[id] = Number(value);
+      }
+
+      document
+        .querySelectorAll("#mekForm input")
+        .forEach((input, index, inputs) => {
+          input.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              const nextInput = inputs[index + 1];
+              if (nextInput) {
+                nextInput.focus();
+              }
+            }
+          });
+
+          input.addEventListener("input", (event) => {
+            updateData(initialData, event.target.id, event.target.value);
+            console.log(initialData);
+          });
+        });
+
+      document
+        .querySelectorAll("#additionalForm input")
+        .forEach((input, index, inputs) => {
+          input.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              const nextInput = inputs[index + 1];
+              if (nextInput) {
+                nextInput.focus();
+              }
+            }
+          });
+
+          input.addEventListener("input", (event) => {
+            if (event.target.value == 0) {
+              updateData(
+                constData,
+                event.target.id.slice(0, -5),
+                defaultConstData[event.target.id.slice(0, -5)]
+              );
+            } else {
+              updateData(
+                constData,
+                event.target.id.slice(0, -5),
+                event.target.value
+              );
+            }
+            console.log(constData);
+          });
+        });
+
+      const form = document.querySelector(".form");
+      const container = document.querySelector(".container");
+      const backButton = document.querySelector("#backButton");
+      const formElement = document.querySelector("#myForm");
+
+      function showForms() {
+        document.querySelector(".container").classList.remove("hidden");
+      }
+
+      backButton.addEventListener("click", () => {
+        document.querySelector(".container").classList.add("hidden");
+        document.querySelector("#mekForm").classList.remove("hidden");
+        document.querySelector("#backButton").style.display = "none";
+      });
+
+      document
+        .querySelector("#toggleSettings")
+        .addEventListener("click", () => {
+          document.querySelector("#mekForm").style.transform =
+            "translateX(-100%)";
+          document.querySelector("#additionalForm").style.transform =
+            "translateX(0)";
+          document.querySelector("#additionalForm");
+
+          setTimeout(() => {
+            document.getElementById("mekForm").classList.add("hidden");
+            document
+              .getElementById("additionalForm")
+              .classList.remove("hidden");
+          }, 300);
+        });
+
+      document.querySelector("#backToMain").addEventListener("click", () => {
+        document.querySelector("#additionalForm").style.transform =
+          "translateX(100%)";
+        document.querySelector("#mekForm").style.transform = "translateX(0)";
+
+        setTimeout(() => {
+          document.getElementById("additionalForm").classList.add("hidden");
+          document.getElementById("mekForm").classList.remove("hidden");
+        }, 300);
+      });
+
+      document.querySelector(".container").classList.add("hidden");
+    </script>
+  </body>
+</html>
